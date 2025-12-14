@@ -1,0 +1,79 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class MahasiswaManager {
+    private List<Mahasiswa> daftarMahasiswa;
+
+    public MahasiswaManager() {
+        this.daftarMahasiswa = new ArrayList<>();
+    }
+
+    // --- CREATE ---
+    public boolean tambahMahasiswa(Mahasiswa mhs) {
+        // Cek apakah NIM sudah ada
+        if (cariMahasiswaByNim(mhs.getNim()) != null) {
+            return false; // NIM sudah terdaftar
+        }
+        daftarMahasiswa.add(mhs);
+        return true;
+    }
+
+    // --- READ ---
+    public List<Mahasiswa> lihatSemuaMahasiswa() {
+        return daftarMahasiswa;
+    }
+    
+    // Metode helper untuk mencari berdasarkan NIM
+    public Mahasiswa cariMahasiswaByNim(String nim) {
+        for (Mahasiswa mhs : daftarMahasiswa) {
+            if (mhs.getNim().equalsIgnoreCase(nim)) {
+                return mhs;
+            }
+        }
+        return null; // Tidak ditemukan
+    }
+
+    // --- UPDATE ---
+    public boolean ubahMahasiswa(String nim, String namaBaru, double nilaiBaru) {
+        Mahasiswa mhs = cariMahasiswaByNim(nim);
+        if (mhs != null) {
+            mhs.setNama(namaBaru);
+            mhs.setNilai(nilaiBaru);
+            return true;
+        }
+        return false; // NIM tidak ditemukan
+    }
+
+    // --- DELETE ---
+    public boolean hapusMahasiswa(String nim) {
+        Mahasiswa mhs = cariMahasiswaByNim(nim);
+        if (mhs != null) {
+            daftarMahasiswa.remove(mhs);
+            return true;
+        }
+        return false; // NIM tidak ditemukan
+    }
+
+    // --- SORTING (Tertinggi ke Terendah) ---
+    public List<Mahasiswa> urutkanBerdasarkanNilai() {
+        // Membuat salinan list untuk diurutkan
+        List<Mahasiswa> listTerurut = new ArrayList<>(daftarMahasiswa);
+        
+        // Mengurutkan menggunakan Comparator.comparingDouble
+        Collections.sort(listTerurut, Comparator.comparingDouble(Mahasiswa::getNilai).reversed());
+        
+        return listTerurut;
+    }
+
+    // --- SEARCHING (Berdasarkan NIM atau Nama) ---
+    public List<Mahasiswa> cariMahasiswa(String keyword) {
+        // Menggunakan stream untuk filtering
+        return daftarMahasiswa.stream()
+                .filter(mhs -> mhs.getNim().toLowerCase().contains(keyword.toLowerCase()) || 
+                               mhs.getNama().toLowerCase().contains(keyword.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+}
